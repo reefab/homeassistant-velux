@@ -1,3 +1,7 @@
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+
+Status as of 2021-04-15: Still working and in use daily.
+
 # How to control Velux electric rolling shutters with Home Assistant and without Velux hardware
 
 ![UI Screenshot](homeassistant_ui.png)
