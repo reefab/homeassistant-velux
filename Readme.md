@@ -1,6 +1,6 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
-Status as of 2021-04-15: Still working and in use daily.
+Status as of 2022-07-06: Still working and in use daily.
 
 # How to control Velux electric rolling shutters with Home Assistant and without Velux hardware
 
@@ -19,11 +19,11 @@ The [IO homecontrol](protocol) it uses is very proprietary and the radio protoco
 
 But then I found out that the motor control is [trivial (article in french but schematics should be understandable by anyone)](http://www.planete-domotique.com/blog/2013/08/29/comment-piloter-ses-volets-roulants-velux/). The blinds simply have two wires, if +24V is provided, the blinds will go up, stopping by themselves once they reach the top (the end stop is integrated) and -24V will makes them go down, once again they stop by themselves. 0V will obviously make them stop.
 
-Here is how I managed to control the blinds using some much cheaper hardware; 40€ total.
+They do need to be powered for a while before reacting. Don't worry if it takes tens of minutes to start to move the first time. It's instantaneous afterwards.
 
 This might also work with similar rolling shutters/blinds from other manufacturers that uses the same principle.
 
-### Important Note
+### ❗ Important Note
 
 Apparently, once a Velux SML has been used with a KUX unit it changes mode of operation and cannot be used with the following method.
 
@@ -33,23 +33,30 @@ Apparently, once a Velux SML has been used with a KUX unit it changes mode of op
 
 This piece of hardware, the [Sonoff 4CH Pro](http://sonoff.itead.cc/en/products/sonoff/sonoff-4ch-pro) is ideal for this: It provides 4 relays, can be powered with 24V and has Wifi thanks to the [ESP8266](https://en.wikipedia.org/wiki/ESP8266). It also has holes to solder a header to re-flash the chip and use a firmware more compatible with Home assistant, but more on that later.
 
-Unlike other Sonoff devices, the relays are not tied to AC. As it can be powered by the same voltage we need to power the motors, it'll need only one power supply for this purpose.
+Unlike other Sonoff devices, the relays are not tied to AC. As it can be powered by the same voltage we need to power the motors, it'll need only one power supply for this.
 
 The four relays means that I can control two motors in two different directions.
 
-It can be DIN-rail mounted and it also has mounting holes. It has 4 buttons to control the relays manually and has an optional RF remote available.
+It can be DIN-rail mounted and it also has mounting holes. It has 4 buttons to control the covers manually and has an optional RF remote available (not tested).
 
 The power supply is not provided and I used a 24V 6A PSU. Apparently only 1A is needed per shutter motor so a 3A PSU should be more than enough to power 2 motors and the electronics.
 
-Price: 
+### Price
+
   * Sonoff 4CH Pro: 25€
   * PSU: 15€
 
-The cabling is fairly simple. For all four relays, each of them has their NO (Normally Open) connector provided with the 24V from the power supply. All NC (Normally Closed) are tied to ground and the motors uses the COM (Common) holes. If the motor goes the opposite direction of what is requested, just invert the motor cables.
+### Wiring
+
+The cabling is simple. For all four relays, each of them has their NO (Normally Open) connector provided with the 24V from the power supply. All NC (Normally Closed) are tied to ground and the motors uses the COM (Common) holes. If the motor goes the opposite direction of what is requested, just invert the motor cables.
+
+### Test installation 
 
 ![Test install](velux_test_install.jpg)
 
 For my usage, I've internally soldered some cables to chain the NO and NC terminals together and tie them to the power supply input.
+
+### Internal wiring
 
 ![Internal Wiring](internal_wiring.jpg)
 
@@ -57,78 +64,41 @@ The exterior is unmodified so I've also sealed the AC inputs to make sure nothin
 
 If relay 1 is activated, the motor will get 24V and the blind will go up. If relay 2 is activated, it'll get -24V and go down. If both relay 1 and 2 are activated or off, the motor will get 0V and do nothing.
 
-So far, so good, but it still needs to be integrated into Home Assistant. For that we'll use Tasmota.
+So far, so good, but it still needs to be integrated into Home Assistant. For that we'll use Esphome.
 
-## Tasmota firmware
+## Esphome firmware
 
-[Tasmota](https://github.com/arendst/Sonoff-Tasmota) is an alternative and open source firmware for those SonOff devices that provides, among many other features a way to control the relays via MQTT.
+[ESPHome](https://esphome.io):
 
-Before upload, edit `sonoff/user_config.h`
+>>> ESPHome is a system to control your ESP8266/ESP32 by simple yet powerful configuration files and control them remotely through Home Automation systems.
 
- * Add your Wifi credential to `STA_SSID1` and `STA_PASS1`.
- * Add the IP or host name of your Home Assistant server to `MQTT_HOST`. Don't forget to enable Home Assistant's MQTT broker or add one before hand.
+I've provided a pre configured configuration file `velux.yaml`. 
+It'll expose 2 blinds entities, a light entity for the blue led and the buttons will open/close the blinds.
 
-Follow the instructions on Tasmota project page to upload the firmware. Don't forget to look at he [4CH pro](https://github.com/arendst/Sonoff-Tasmota/wiki/Sonoff-4CH-and-4CH-Pro) specific page of the documentation.
+You'll need to add a `secret.yaml` file with your wifi SSID and password:
 
-This was the hardest part of this experiment for me, and I've been working with ESP8266 for a while. It took me a much longer time than expected to manage the successfully upload the firmware, probably due to an inadequate USB-UART adapter. The timing to put the chip into programming mode also seemed very difficult to get right for some reason.
+```yaml
+wifi_ssid: your_ssid
+wifi_password: your_password
+```
 
-Once the device is using Tasmota. You'll have some configuration to make, open the web interface; it'll be advertised via Bonjour.
+You'll also probably want to edit `velux.yaml` file and change the name of the blinds.
 
- * Configuration
-   * Configure Module
-     * Set Module type to `23 Sonoff 4CH Pro`
-   * Configure MQTT
-     * Set Topic to `velux`
+Run `esphome compile velux.yaml` and the firmware will be available at `.esphome/build/sonoff4chpro/.pioenvs/sonoff4chpro/firmware.bin`.
 
-It'll restart and should be available to Home Assistant.
+### Flashing
+
+⚠️  NEVER CONNECT AC TO THE DEVICE.
+It's not needed for this usage and is dangerous.
+
+This is the hard part, it's very finicky. Fortunately, it only needs to be done once as OTA updates can be used afterward.
+
+Here is the documentation for putting the 4CH Pro in flashing mode: [Tasmota documentation](https://tasmota.github.io/docs/devices/Sonoff-4CH-Pro/#sonoff-4ch-pro-r3). It contains informations about the three different revisions of the hardware.
+
+Now follow the uploading firmware steps of the [esphome documentation](https://esphome.io/devices/sonoff_4ch.html#step-4-uploading-firmware).
+
+This was by far the most difficult step. It took me a lot of tries to get it right but it eventually worked.
 
 ## Home Assistant configuration
 
-```yaml
-mqtt: # add this if you didn't already have a configured MQTT broker
-
-cover:
-  - platform: mqtt
-    name: "Velux Mezzanine"
-    command_topic: "cmnd/velux/Backlog"
-    payload_open: "power2 off; power1 on"
-    payload_close: "power1 off; power2 on"
-    payload_stop: "power1 off; power2 off"
-```
-
-Replace `power1` and `power2` by `power3` and `power4` respectively for the second window.
-
-And that's it for Home assistant, the configuration is fairly straight forward.
-
-After restarting Home Assistant you should see the cover controls in the UI.
-
-### Automation example 
-
-```yaml
-automation:
-- id: close_covers_at_night
-  alias: Close covers at night
-  trigger:
-    platform: sun
-    event: sunset
-  action:
-    service: cover.close_cover
-    entity_id: group.all_covers
-- id: open_covers_during_the_day
-  alias: Open covers during the day
-  trigger:
-    platform: sun
-    event: sunrise
-  action:
-    service: cover.open_cover
-    entity_id: group.all_covers
-```
-
-## Reduce idle power consumption
-
-Activate sleep to reduce idle power consumption (cuts it by half):
-
-You can use the MQTT tool inside Home Assistant to send this to the device:
-
- * topic: cmnd/velux/Sleep
- * payload: 50
+The device will be detected automatically and be available for setup in the "Integrations" pages.
