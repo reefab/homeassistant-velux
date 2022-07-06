@@ -25,7 +25,7 @@ This might also work with similar rolling shutters/blinds from other manufacture
 
 ### Important Note
 
-Apparently, once a Velux SML has been used with a KUX unit it changes mode of the operation and cannot be used with the following method.
+Apparently, once a Velux SML has been used with a KUX unit it changes mode of operation and cannot be used with the following method.
 
 [Here is more information and a possible way to factory reset them](https://smarthome.exposed/controlling-velux-windows/).
 
@@ -72,7 +72,7 @@ Follow the instructions on Tasmota project page to upload the firmware. Don't fo
 
 This was the hardest part of this experiment for me, and I've been working with ESP8266 for a while. It took me a much longer time than expected to manage the successfully upload the firmware, probably due to an inadequate USB-UART adapter. The timing to put the chip into programming mode also seemed very difficult to get right for some reason.
 
-Once the device is using Tasmota. You'll have some configuration to make, open the web interfacel; it'll be advertised via Bonjour.
+Once the device is using Tasmota. You'll have some configuration to make, open the web interface; it'll be advertised via Bonjour.
 
  * Configuration
    * Configure Module
@@ -91,16 +91,14 @@ cover:
   - platform: mqtt
     name: "Velux Mezzanine"
     command_topic: "cmnd/velux/Backlog"
-    payload_open: "power2 off; power1 on; delay 1500; power1 off"
-    payload_close: "power1 off; power2 on; delay 320; power2 off"
+    payload_open: "power2 off; power1 on"
+    payload_close: "power1 off; power2 on"
     payload_stop: "power1 off; power2 off"
 ```
 
 Replace `power1` and `power2` by `power3` and `power4` respectively for the second window.
 
 And that's it for Home assistant, the configuration is fairly straight forward.
-
-You might need to adjust the delay depending on the length of your shutters. The delay is defined in tenths of a second.
 
 After restarting Home Assistant you should see the cover controls in the UI.
 
