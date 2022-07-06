@@ -70,10 +70,10 @@ So far, so good, but it still needs to be integrated into Home Assistant. For th
 
 [ESPHome](https://esphome.io):
 
->>> ESPHome is a system to control your ESP8266/ESP32 by simple yet powerful configuration files and control them remotely through Home Automation systems.
+> ESPHome is a system to control your ESP8266/ESP32 by simple yet powerful configuration files and control them remotely through Home Automation systems.
 
 I've provided a pre configured configuration file `velux.yaml`. 
-It'll expose 2 blinds entities, a light entity for the blue led and the buttons will open/close the blinds.
+It'll expose 2 blinds entities, a light entity for the blue led and the buttons on the device will open/close the blinds.
 
 You'll need to add a `secret.yaml` file with your wifi SSID and password:
 
@@ -82,7 +82,7 @@ wifi_ssid: your_ssid
 wifi_password: your_password
 ```
 
-You'll also probably want to edit `velux.yaml` file and change the name of the blinds.
+You'll also probably want to edit the `velux.yaml` file and change the name of the blinds.
 
 Run `esphome compile velux.yaml` and the firmware will be available at `.esphome/build/sonoff4chpro/.pioenvs/sonoff4chpro/firmware.bin`.
 
