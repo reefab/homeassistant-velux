@@ -6,6 +6,8 @@ Status as of 2022-07-06: Still working and in use daily.
 
 ![UI Screenshot](homeassistant_ui.png)
 
+Works with Velux SML roller blinds. Conversion from SSL blinds possible, see below.
+
 ## Official Velux hardware
 
 I'm getting my roof repaired and my Velux windows renovated and I opted to get some [electric rolling shutters](https://www.velux.co.uk/products/blinds-and-shutters/roller-shutters) (ref: Velux SML) to replace my indoor rolling blinds. I didn't need to get them solar powered as they are close to a power outlet.
@@ -66,6 +68,8 @@ If relay 1 is activated, the motor will get 24V and the blind will go up. If rel
 
 So far, so good, but it still needs to be integrated into Home Assistant. For that we'll use Esphome.
 
+![Connections](connections.jpg)
+
 ## Esphome firmware
 
 [ESPHome](https://esphome.io):
@@ -102,3 +106,17 @@ This was by far the most difficult step. It took me a lot of tries to get it rig
 ## Home Assistant configuration
 
 The device will be detected automatically and be available for setup in the "Integrations" pages.
+
+
+## Addendum: Conversion for Velux Solar Blinds (SSL) to 24V (SML)
+
+Thanks to [KayGundhardt](https://github.com/KayGundhardt) for this experimentation and guide.
+
+ - Buy a SML replacement motor like [this](https://www.dach-shop24.de/velux-rollladenmotor/p-48430.html).
+ - Remove ENTIRE SSL unit (the pod).
+ - From inside the pod: remove the control-board, battery and finally the motor.
+ - ⚠️ PAY ATTENTION: the 2 small torx (#8) screws that holds the motor in the pod are also DIRECTLY holding the inner case for the motor gear wheels!! So open them CAREFULLY in a horizontal position and put them immediately back in place when you removed the motor out of the pod!
+ - Insert SML replacement motor into the empty SSL unit pod.
+ - Connect to the Sonoff and press the button to make it go up or down, wait for a while for it to react and reach the end. Press the other button to make it go the opposite direction.
+ 
+ Be patient, it can take a while to starts moving, this is normal.
