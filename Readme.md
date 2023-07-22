@@ -103,6 +103,11 @@ Now follow the uploading firmware steps of the [esphome documentation](https://e
 
 This was by far the most difficult step. It took me a lot of tries to get it right but it eventually worked.
 
+### Configuring runtime for position control
+
+Time based covers platform allows you to measure the time the blinds take to go up and down and configure it for each blind. Afterwards you can select a specific % that the cover will stay open. 
+
+
 ## Home Assistant configuration
 
 The device will be detected automatically and be available for setup in the "Integrations" pages.
