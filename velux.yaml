@@ -2,6 +2,7 @@ esphome:
   name: sonoff4chpro
   platform: ESP8266
   board: esp01_1m
+  restore_from_flash: true 
 
 wifi:
   ssid: !secret wifi_ssid
@@ -63,20 +64,26 @@ switch:
   - platform: gpio
     pin: GPIO12
     id: "relay_1"
+    interlock: [relay_2]
   - platform: gpio
     pin: GPIO5
     id: "relay_2"
+    interlock: [relay_1]
   - platform: gpio
     pin: GPIO4
     id: "relay_3"
+    interlock: [relay_4]
   - platform: gpio
     pin: GPIO15
     id: "relay_4"
+    interlock: [relay_3]
 
 cover:
-  - platform: template
+  - platform: time_based
     id: velux_1
     name: "Velux 1"
+    open_duration: 0.7min
+    close_duration: 0.7min    
     open_action:
       - switch.turn_off: relay_2
       - switch.turn_on: relay_1
@@ -87,9 +94,11 @@ cover:
       - switch.turn_off: relay_1
       - switch.turn_off: relay_2
     optimistic: true
-  - platform: template
+  - platform: time_based
     id: velux_2
     name: "Velux 2"
+    open_duration: 0.7min
+    close_duration: 0.7min    
     open_action:
       - switch.turn_off: relay_4
       - switch.turn_on: relay_3
